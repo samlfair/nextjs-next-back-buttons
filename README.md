@@ -1,3 +1,5 @@
+*[🙂 Discuss this on the Prismic Community Forum](https://community.prismic.io/t/get-next-post-in-next-react/4672/5)*
+
 This is a basic example of a "Next Post" button in a Next.js project with Prismic.
 
 To bootstrap this project, download the folder and run `npm i`.
