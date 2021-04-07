@@ -1,65 +1,47 @@
-import Head from 'next/head'
-import styles from '../styles/Home.module.css'
+import React from 'react'
+import Link from 'next/link'
+import Prismic from '@prismicio/client'
+import { Date, RichText } from 'prismic-reactjs'
 
-export default function Home() {
+const apiEndpoint = 'https://prismicio-docs-v3.cdn.prismic.io/api/v2'
+
+const Client = Prismic.client(apiEndpoint)
+
+const linkResolver = (doc) => {
+  return '/' + doc.uid
+}
+
+export default function Home({ doc, nextPost }) {
   return (
-    <div className={styles.container}>
-      <Head>
-        <title>Create Next App</title>
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
-
-      <main className={styles.main}>
-        <h1 className={styles.title}>
-          Welcome to <a href="https://nextjs.org">Next.js!</a>
-        </h1>
-
-        <p className={styles.description}>
-          Get started by editing{' '}
-          <code className={styles.code}>pages/index.js</code>
-        </p>
-
-        <div className={styles.grid}>
-          <a href="https://nextjs.org/docs" className={styles.card}>
-            <h3>Documentation &rarr;</h3>
-            <p>Find in-depth information about Next.js features and API.</p>
-          </a>
-
-          <a href="https://nextjs.org/learn" className={styles.card}>
-            <h3>Learn &rarr;</h3>
-            <p>Learn about Next.js in an interactive course with quizzes!</p>
-          </a>
-
-          <a
-            href="https://github.com/vercel/next.js/tree/master/examples"
-            className={styles.card}
-          >
-            <h3>Examples &rarr;</h3>
-            <p>Discover and deploy boilerplate example Next.js projects.</p>
-          </a>
-
-          <a
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            className={styles.card}
-          >
-            <h3>Deploy &rarr;</h3>
-            <p>
-              Instantly deploy your Next.js site to a public URL with Vercel.
-            </p>
-          </a>
-        </div>
-      </main>
-
-      <footer className={styles.footer}>
-        <a
-          href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Powered by{' '}
-          <img src="/vercel.svg" alt="Vercel Logo" className={styles.logo} />
-        </a>
-      </footer>
+    <div>
+      <Link href="/">
+        <a>Home</a>
+      </Link>
+      <div>{RichText.asText(doc?.data?.title)}</div>
+      <Link href={'/' + nextPost?.uid}>Next</Link>
     </div>
   )
+}
+
+export async function getStaticProps() {
+  const response = await Client.query(
+    // Replace `article` with your doc type
+    Prismic.Predicates.at('document.type', 'article'),
+    { orderings: '[document.first_publication_date desc]' },
+  )
+  const doc = response.results[0]
+  const nextPost = ( // Replace `article` with your doc type
+    await Client.query(Prismic.Predicates.at('document.type', 'article'), {
+      pageSize: 1,
+      after: doc.id,
+      orderings: '[document.first_publication_date desc]',
+    })
+  ).results[0]
+
+  return {
+    props: {
+      doc,
+      nextPost,
+    },
+  }
 }
