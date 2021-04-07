@@ -16,8 +16,7 @@ export async function getStaticProps({ params }) {
     Prismic.Predicates.at('document.type', 'article'),
   )
   const doc = response.results[0]
-  const nextPost = // replace document type ("article")
-  (
+  const nextPost = ( // replace document type ("article")
     await Client.query(Prismic.Predicates.at('document.type', 'article'), {
       pageSize: 1,
       after: doc.id,
@@ -28,3 +27,7 @@ export async function getStaticProps({ params }) {
   // ...
 }
 ```
+
+### ⚠️ Warning
+
+The `getStaticPaths` function in `~/pages/[uid].js` only generates paths for the first 100 documents of the provided type in your repo. If you have more than 100 documents of that type, you'll need to fetch them recursively. (Post on the Prismic forum for instruction on how to do this.)
